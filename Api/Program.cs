@@ -1,6 +1,8 @@
 using Domain.Interfaces;
 using Domain.Services;
+using Infrastructure.Persistence;
 using Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api;
 
@@ -15,7 +17,12 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        builder.Services.AddSingleton<ITaskRepository, TaskRepository>();
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+        builder.Services.AddDbContext<TasksDbContext>(options =>
+            options.UseNpgsql(connectionString));
+
+        builder.Services.AddScoped<ITaskRepository, TaskRepository>();
         builder.Services.AddScoped<TaskService>();
 
         var app = builder.Build();
